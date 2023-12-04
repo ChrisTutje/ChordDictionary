@@ -1,3 +1,15 @@
+/*
+ * Chris Tutje
+ * Chtutje@Dmacc.edu
+ * 12/3/2023
+ *
+ * Summary: This project allows the user to input 3 musical notes into a UI which will be identified as a chord.
+ * It has a ChordDictionary class that handles logic, a ChordGui class that creates the user UI,
+ * it has a series of unit tests, and it has a main function.
+ * Regretfully there are many ways in which this code could be improved, but time is a factor.
+ * More detailed self-criticisms are included in my final report.
+ * */
+
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -66,7 +78,7 @@ public:
             } else if (isQuartalTriad(uniqueNotes)) {
                 return "Quartal Triad";
             } else {
-                return "Undocumented Chord";
+                return "Unknown Chord";
             }
         default:
             cout << "Unique Notes size:" << uniqueNotes.size() << endl;
@@ -74,7 +86,7 @@ public:
             for (const auto& note : uniqueNotes) {
                 qDebug() << note;
             }
-            return "Undocumented Chord";
+            return "Unknown Chord";
         }
     }
 
@@ -238,7 +250,7 @@ private:
             QPushButton* button = new QPushButton(note);
 
             //if (note.contains("#") || note.contains("b")) {
-                //button->setStyleSheet("background-color: black; color: white;");
+            //button->setStyleSheet("background-color: black; color: white;");
             //}
 
             noteButtons.push_back(button);
@@ -425,7 +437,7 @@ int main(int argc, char* argv[]) {
     ChordGui gui;
     gui.show();
 
-    /*
+/*
     testMajorChord();
     testMajor1stInversion();
     testMajor2ndInversion();
@@ -445,7 +457,7 @@ int main(int argc, char* argv[]) {
     testMajorFlat51stInversion();
     testMajorFlat52ndInversion();
     testQuartalTriad();
-    */
+*/
 
     return app.exec();
 }
