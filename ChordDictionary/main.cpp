@@ -6,8 +6,6 @@
  * Summary: This project allows the user to input 3 musical notes into a UI which will be identified as a chord.
  * It has a ChordDictionary class that handles logic, a ChordGui class that creates the user UI,
  * it has a series of unit tests, and it has a main function.
- * Regretfully there are many ways in which this code could be improved, but time is a factor.
- * More detailed self-criticisms are included in my final report.
  * */
 
 #include <iostream>
@@ -21,23 +19,23 @@
 #include <QString>
 using namespace std;
 
-class ChordDictionary {
+class ChordDictionary { //this class contains a map/dictionary filled with triadic chords, methods for translating input, and methods for output.
 public:
     ChordDictionary() {
         initializeChordDictionary();
     }
 
-    QString determineChord(const vector<QString>& notes) const {
+    QString determineChord(const vector<QString>& notes) const { //this method handles output after identifying the chord.
         vector<QString> uniqueNotes = notes;
         auto last = unique(uniqueNotes.begin(), uniqueNotes.end());
         uniqueNotes.erase(last, uniqueNotes.end());
 
-        cout << "Notes: " << endl;
+        cout << "Notes: " << endl; //prints the notenames of each chord.
         for (const auto& note : uniqueNotes) {
-            qDebug() << note;
+            cout << note.toStdString() << endl;
         }
 
-        switch (uniqueNotes.size()) {
+        switch (uniqueNotes.size()) { //used to identify chords, it should be restructured, but was originally meant to handle chords of different sizes.
         case 3:
             if (isMajorChord(uniqueNotes)) {
                 return "Major Chord";
@@ -77,15 +75,8 @@ public:
                 return "Major Flat-5 2nd Inversion";
             } else if (isQuartalTriad(uniqueNotes)) {
                 return "Quartal Triad";
-            } else {
-                return "Unknown Chord";
             }
         default:
-            cout << "Unique Notes size:" << uniqueNotes.size() << endl;
-            cout << "Unique Notes:" << endl;
-            for (const auto& note : uniqueNotes) {
-                qDebug() << note;
-            }
             return "Unknown Chord";
         }
     }
@@ -93,7 +84,7 @@ public:
 private:
     unordered_map<QString, vector<QString>> chordDictionary;
 
-    void initializeChordDictionary() {
+    void initializeChordDictionary() { //this is a dictionary of triadic chords, using numerical scale degrees.
         chordDictionary["Major"] = {"0", "4", "7"};
         chordDictionary["Major 1st Inversion"] = {"0", "3", "8"};
         chordDictionary["Major 2nd Inversion"] = {"0", "5", "9"};
@@ -115,7 +106,7 @@ private:
         chordDictionary["Quartal Triad"] = {"0", "5", "10"};
     }
 
-    int noteToScaleDegree(const QString& note) const {
+    int noteToScaleDegree(const QString& note) const { //this translates the note names from the button input into numerical scale degrees.
         auto it = find(chromaticScale.begin(), chromaticScale.end(), note);
         if (it != chromaticScale.end()) {
             return distance(chromaticScale.begin(), it);
@@ -139,7 +130,7 @@ private:
 
         sort(scaleDegrees.begin(), scaleDegrees.end());
 
-        int baseDegree = noteToScaleDegree(notes[0]);
+        int baseDegree = noteToScaleDegree(notes[0]); //sets the first input note to 0
         for (auto& degree : scaleDegrees) {
             int normalizedDegree = (degree.toInt() - baseDegree + 12) % 12;
             degree = QString::number(normalizedDegree);
@@ -153,7 +144,7 @@ private:
         return degreesSet == chordPatternSet;
     }
 
-    bool isMajorChord(const vector<QString>& notes) const {
+    bool isMajorChord(const vector<QString>& notes) const { //these are booleans for identifying the chords. Very ugly code, should be improved.
         return isChordOfType(notes, "Major");
     }
 
@@ -229,10 +220,10 @@ private:
         return isChordOfType(notes, "Quartal Triad");
     }
 
-    const vector<QString> chromaticScale = {"C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "G#/Ab", "A", "A#/Bb", "B"};
+    const vector<QString> chromaticScale = {"C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "G#/Ab", "A", "A#/Bb", "B"}; //this is used in noteToScaleDegree
 };
 
-class ChordGui : public QWidget {
+class ChordGui : public QWidget { //this class creates the UI, and creates buttons with action listeners.
 public:
     ChordGui() {
         setupUi();
@@ -246,12 +237,13 @@ private:
     void setupUi() {
         QVBoxLayout* layout = new QVBoxLayout;
 
-        for (const QString& note : {"A", "A#/Bb", "B", "C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "G#/Ab"}) {
+        for (const QString& note : {"A", "A#/Bb", "B", "C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "G#/Ab"}) { //this sets creates the 12 note buttons.
             QPushButton* button = new QPushButton(note);
 
-            //if (note.contains("#") || note.contains("b")) {
-            //button->setStyleSheet("background-color: black; color: white;");
-            //}
+            //if enabled this changes the accidental keys to a black color
+         /* if (note.contains("#") || note.contains("b")) {
+            button->setStyleSheet("background-color: black; color: white;");
+            } */
 
             noteButtons.push_back(button);
             connect(button, &QPushButton::clicked, [this, note]() { handleNoteButtonClicked(note); });
@@ -259,7 +251,7 @@ private:
             layout->addWidget(button);
         }
 
-        QPushButton* submitButton = new QPushButton("Submit");
+        QPushButton* submitButton = new QPushButton("Submit"); //this is the submit button
         connect(submitButton, &QPushButton::clicked, this, &ChordGui::handleSubmit);
 
         layout->addWidget(submitButton);
@@ -269,7 +261,7 @@ private:
         setLayout(layout);
     }
 
-    void handleNoteButtonClicked(const QString& note) {
+    void handleNoteButtonClicked(const QString& note) { //the submit button action listener, it eliminates multiple duplicate button input.
         auto it = std::find(selectedNotes.begin(), selectedNotes.end(), note);
 
         if (it == selectedNotes.end()) {
@@ -284,7 +276,7 @@ private:
         }
     }
 
-    void handleSubmit() {
+    void handleSubmit() { //limits user input to 3 notes.
         if (selectedNotes.size() == 3) {
             QString chordType = chordDictionary.determineChord(selectedNotes);
             cout << "Chord type: " << chordType.toStdString() << endl;
@@ -297,7 +289,7 @@ private:
 
 };
 
-void testMajorChord() {
+void testMajorChord() { //these are basic positive unit tests, they should be migrated to their own file.
     ChordDictionary chordDict;
     vector<QString> notes = {"C", "E", "G"};
     QString result = chordDict.determineChord(notes);
@@ -431,13 +423,13 @@ void testQuartalTriad() {
 }
 
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) { //simple main, uncomment the unit-test calls to test.
     QApplication app(argc, argv);
 
     ChordGui gui;
     gui.show();
 
-/*
+    /*
     testMajorChord();
     testMajor1stInversion();
     testMajor2ndInversion();
